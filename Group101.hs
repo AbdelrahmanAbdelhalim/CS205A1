@@ -185,3 +185,28 @@ stratB' piles n
   | (piles!!n) == 0 = stratB' piles (n+1)
   | otherwise       = (n+1,piles!!n)
 
+--b)
+nimAI :: ([Int] -> (Int,Int)) -> IO()
+nimAI strat = do piles <- readPiles
+                 nimAI' strat piles "AI"
+
+nimAI' :: ([Int] -> (Int,Int)) -> [Int] -> String -> IO()
+nimAI' strat piles player = do putStrLn ""
+                               displayGame piles
+                               if won piles then
+                                do putStrLn ""
+                                   putStr player
+                                   putStrLn " Win!"
+                               else if player == "AI" then
+                                do putStrLn "\nYour Go: "
+                                   t <- getMove2 piles
+                                   let x = fst t
+                                   let y = snd t
+                                   nimAI' strat (takeAway piles x y) "You"
+                               else
+                                do putStrLn "\nAI's Go: "
+                                   let aiMove = strat piles
+                                   let row = fst aiMove
+                                   let coins = snd aiMove
+                                   nimAI' strat (takeAway piles row coins) "AI"
+
