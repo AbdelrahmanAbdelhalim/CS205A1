@@ -1,5 +1,6 @@
 import Test.QuickCheck
 import Data.Char
+import Data.Bits
 
 --1)a)
 max1 :: Int -> Int -> Int -> Int
@@ -65,7 +66,7 @@ won piles = sum piles == 0
 
 --b)
 validMove :: [Int] -> Int -> Int -> Bool
-validMove piles num coins = head(drop (num - 1)(piles)) >= coins
+validMove piles num coins = (head(drop (num - 1)(piles)) >= coins) && (coins /= 0)
 
 --c)
 takeAway :: [Int] -> Int -> Int -> [Int]
@@ -208,5 +209,32 @@ nimAI' strat piles player = do putStrLn ""
                                    let aiMove = strat piles
                                    let row = fst aiMove
                                    let coins = snd aiMove
-                                   nimAI' strat (takeAway piles row coins) "AI"
+                                   nimAI' strat (takeAway piles (fst aiMove) (snd aiMove)) "AI"
+
+--c)
+xorCalc :: [Int] -> Int
+xorCalc [] = 0
+xorCalc (x:[]) = x
+xorCalc (x:xs) = x `xor` (head xs) `xor` xorCalc(tail xs)
+
+stratI :: [Int] -> (Int,Int)
+stratI piles = if xorCalc piles == 0 then
+                    stratB piles
+                  else
+                    moveCalc piles 0 1
+
+moveCalc :: [Int] -> Int -> Int -> (Int,Int)
+moveCalc piles pile coins = if coins <= piles!!pile then
+                              moveCalc' piles pile coins
+                            else
+                              moveCalc' piles (pile+1) 1
+
+moveCalc' :: [Int] -> Int -> Int -> (Int,Int)
+moveCalc' piles pile coins = if xorCalc (takeAway piles (pile+1) coins) == 0 then
+                              (pile+1,coins)
+                             else
+                              moveCalc piles pile (coins+1)
+ 
+
+
 
